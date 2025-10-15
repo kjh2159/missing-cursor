@@ -25,6 +25,7 @@ pip install PyQt6
 ### A. Python
 
 ```shell
+conda activate cursor
 python py/cursor.py
 ```
 
