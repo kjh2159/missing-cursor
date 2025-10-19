@@ -79,7 +79,7 @@ class Toast(QtWidgets.QWidget):
         elif pos == "top-left":
             x = gr.left() + self._margin; y = gr.top() + self._margin
         elif pos == "top-center":
-            x = gr.left() + pr.width()//2 + self._margin; y = gr.top() + self._margin
+            x = (gr.left() + gr.right() - pr.width())//2; y = gr.top() + self._margin
         self.move(x, y)
 
 
