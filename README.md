@@ -26,7 +26,7 @@ pip install PyQt6
 ### A. Python
 
 ```shell
-python py/cursor.py
+python py/run.py
 ```
 
 ### B. Web
