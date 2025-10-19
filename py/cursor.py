@@ -9,7 +9,6 @@ class CursorToggle(QtCore.QObject):
         self.active = False
 
     def eventFilter(self, obj, e):
-        # 1) 키 누름: auto-repeat 무시
         if e.type() == QEvent.Type.KeyPress and getattr(e, "key", None) and e.key() == self.key:
             if not getattr(e, "isAutoRepeat", lambda: False)():
                 if not self.active:
@@ -17,13 +16,11 @@ class CursorToggle(QtCore.QObject):
                     self.active = True
             return False
 
-        # 2) 키 뗌: auto-repeat 무시하고 복구
         if e.type() == QEvent.Type.KeyRelease and getattr(e, "key", None) and e.key() == self.key:
             if not getattr(e, "isAutoRepeat", lambda: False)():
                 self._restore()
             return False
 
-        # 3) 앱 비활성/포커스 아웃일 때도 안전 복구
         if e.type() in (QEvent.Type.ApplicationDeactivate, QEvent.Type.FocusOut):
             self._restore()
             return False
@@ -32,7 +29,6 @@ class CursorToggle(QtCore.QObject):
 
     def _restore(self):
         if self.active:
-            # 우리가 켠 것만 한 번 복구
             QtWidgets.QApplication.restoreOverrideCursor()
             self.active = False
 
@@ -41,21 +37,27 @@ class Demo(QtWidgets.QWidget):
         super().__init__()
         self.setWindowTitle("Hold SPACE to change cursor")
         self.setMinimumSize(400, 200)
-        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)  # 포커스 받기 쉽게
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         label = QtWidgets.QLabel("Hold SPACE → cross cursor\nRelease → normal cursor")
         label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout = QtWidgets.QVBoxLayout(self)
         layout.addWidget(label)
 
+def _cleanup_override_cursor():
+    # 남아있을지 모르는 override cursor 스택을 싹 비움
+    while QtWidgets.QApplication.overrideCursor() is not None:
+        QtWidgets.QApplication.restoreOverrideCursor()
+
 app = QtWidgets.QApplication([])
+app.setQuitOnLastWindowClosed(True)
+
 w = Demo(); w.show()
 
-# 전역 필터 설치: 버튼/텍스트 위젯이 스페이스를 먹어도 감지 가능
-toggler = CursorToggle(key=Qt.Key.Key_Space, cursor=Qt.CursorShape.CrossCursor)
+# 전역 필터(앱 자식으로 붙여 자동 정리)
+toggler = CursorToggle(key=Qt.Key.Key_Space, cursor=Qt.CursorShape.CrossCursor, parent=app)
 app.installEventFilter(toggler)
 
-# 앱 종료 시 혹시 남은 override 깨끗이 정리(방어적)
-app.aboutToQuit.connect(lambda: [QtWidgets.QApplication.restoreOverrideCursor()
-                                 for _ in iter(int, 1) if QtWidgets.QApplication.overrideCursor()])
+# 안전한 정리 핸들러
+app.aboutToQuit.connect(_cleanup_override_cursor)
 
 app.exec()
