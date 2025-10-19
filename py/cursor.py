@@ -10,14 +10,14 @@ class Sleeper(QtCore.QObject):
 
     @QtCore.pyqtSlot(int)
     def run(self, ms):
-        # 현재 쓰레드에서만 sleep (GUI 멈추지 않음)
-        QtCore.QThread.msleep(ms)  # 또는: import time; time.sleep(ms/1000)
+        # Sleep only current thread (GUI does not stop)
+        QtCore.QThread.msleep(ms)
         self.done.emit()
 
 class Demo(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Random cursor & button")
+        self.setWindowTitle("Missing Cursor Demo")
         self.setMinimumSize(500, 350)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
@@ -43,6 +43,9 @@ class Demo(QtWidgets.QWidget):
 
     # single shot
     def randomize_once(self):
+        # random pause
+        pause = random.randint(1000, 5000) # (1 - 5 sec)
+
         # remove existing button
         if self.rand_btn:
             self.rand_btn.setParent(None)
@@ -50,12 +53,12 @@ class Demo(QtWidgets.QWidget):
             self.rand_btn = None
 
         # sleeper (THREAD way)
-        self._thr = QtCore.QThread(self)     # 참조 유지용(로컬 변수만 두면 GC될 수 있음)
+        self._thr = QtCore.QThread(self)     # maintain reference (prevent garbage collection)
         self._worker = Sleeper()
         self._worker.moveToThread(self._thr)
 
-        self._thr.started.connect(lambda: self._worker.run(1000)) #ms
-        self._worker.done.connect(self._randomize_once_impl)  #버튼 배치 실행
+        self._thr.started.connect(lambda: self._worker.run(pause)) # ms
+        self._worker.done.connect(self._randomize_once_impl)  # real implementation
         self._worker.done.connect(self._thr.quit)
         self._worker.done.connect(self._worker.deleteLater)
         self._thr.finished.connect(self._thr.deleteLater)
@@ -65,11 +68,11 @@ class Demo(QtWidgets.QWidget):
         self.randomize_background()
         self.place_random_button()
         self.move_cursor_randomly()
-        Toast.show_toast(parent=self, text="Find and click the button from now!", duration_ms=1200, pos="top-center")
+        Toast.show_toast(parent=self, text="Find and click the button from now!", duration_ms=1000, pos="top-center")
 
     def place_random_button(self):
         # re-create random button
-        self.rand_btn = QtWidgets.QPushButton("Random Button", self.container)
+        self.rand_btn = QtWidgets.QPushButton("Click Me!", self.container)
         self.rand_btn.resize(self.rand_btn.sizeHint())
 
         # calculate button size and container region
@@ -86,7 +89,6 @@ class Demo(QtWidgets.QWidget):
         def on_clicked():
             pass
         self.rand_btn.clicked.connect(self.randomize_once)
-
         self.rand_btn.show()
 
     def move_cursor_randomly(self):
