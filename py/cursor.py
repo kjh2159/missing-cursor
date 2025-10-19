@@ -3,6 +3,8 @@ import random
 from PyQt6 import QtWidgets, QtCore, QtGui
 from PyQt6.QtCore import Qt, QEvent
 
+from toast import Toast
+
 class Demo(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
@@ -28,6 +30,7 @@ class Demo(QtWidgets.QWidget):
 
     # 한 번만 실행: 랜덤 커서 이동 + 랜덤 버튼 생성
     def randomize_once(self):
+        Toast.show_toast(parent=self, text="랜덤 위치로 이동했어요", duration_ms=1200, pos="top-right")
         self.place_random_button()
         self.move_cursor_randomly()
 
