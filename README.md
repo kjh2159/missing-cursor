@@ -16,6 +16,7 @@ cd missing-cursor
 
 # venv and packages
 conda create --name cursor python=3.13
+conda activate cursor
 pip install PyQt6
 ```
 > For the web version, you don't need to prepare venv and packages.
@@ -25,7 +26,6 @@ pip install PyQt6
 ### A. Python
 
 ```shell
-conda activate cursor
 python py/cursor.py
 ```
 
