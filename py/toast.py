@@ -78,6 +78,8 @@ class Toast(QtWidgets.QWidget):
             y = gr.top() + self._margin
         elif pos == "top-left":
             x = gr.left() + self._margin; y = gr.top() + self._margin
+        elif pos == "top-center":
+            x = gr.left() + pr.width()//2 + self._margin; y = gr.top() + self._margin
         self.move(x, y)
 
 
@@ -91,7 +93,7 @@ class Toast(QtWidgets.QWidget):
         # fade in
         w._anim.stop()
         w._eff.setOpacity(0.0)
-        QtWidgets.QWidget.show(w)  # ← 이제 안전하지만, 이름도 바꿨으니 충돌 없음
+        QtWidgets.QWidget.show(w) 
         w._anim.setStartValue(0.0)
         w._anim.setEndValue(1.0)
         w._anim.setDuration(200)

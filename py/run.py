@@ -14,11 +14,11 @@ if __name__ == "__main__":
 
     w = Demo(); w.show()
 
-    # 전역 필터(앱 자식으로 붙여 자동 정리)
+    # global filter, which is attched to the parent process as a child
     toggler = get_toggler(OPTIONS, app)
     app.installEventFilter(toggler)
 
-    # 안전한 정리 핸들러
+    # safeguard to clean handler
     app.aboutToQuit.connect(cleanup_override_cursor)
 
     app.exec()

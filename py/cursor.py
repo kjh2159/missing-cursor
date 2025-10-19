@@ -18,24 +18,24 @@ class Demo(QtWidgets.QWidget):
         )
         info.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.container = QtWidgets.QWidget(self)  # 버튼 올릴 영역
+        self.container = QtWidgets.QWidget(self)  # button region
         lay = QtWidgets.QVBoxLayout(self)
         lay.addWidget(info)
         lay.addWidget(self.container, stretch=1)
 
-        self.rand_btn = None  # 생성된 랜덤 버튼 참조용
+        self.rand_btn = None  # created button
 
-        # show 된 직후에 랜덤 배치 실행 (geometry가 안정화된 뒤)
+        # do single shot the randomization after show (after geometry is stablized)
         QtCore.QTimer.singleShot(0, self.randomize_once)
 
-    # 한 번만 실행: 랜덤 커서 이동 + 랜덤 버튼 생성
+    # single shot
     def randomize_once(self):
-        Toast.show_toast(parent=self, text="랜덤 위치로 이동했어요", duration_ms=1200, pos="top-right")
+        Toast.show_toast(parent=self, text="Find and click the button from now!", duration_ms=1200, pos="top-center")
         self.place_random_button()
         self.move_cursor_randomly()
 
     def place_random_button(self):
-        # 기존 버튼 있으면 제거
+        # remove existing button
         if self.rand_btn:
             self.rand_btn.setParent(None)
             self.rand_btn.deleteLater()
@@ -44,7 +44,7 @@ class Demo(QtWidgets.QWidget):
         self.rand_btn = QtWidgets.QPushButton("Random Button", self.container)
         self.rand_btn.resize(self.rand_btn.sizeHint())
 
-        # 버튼 크기/컨테이너 영역 계산
+        # calculate button size and container region
         br = self.rand_btn.frameGeometry()
         cr = self.container.contentsRect()
         max_x = max(cr.width() - br.width(), 0)
@@ -54,7 +54,7 @@ class Demo(QtWidgets.QWidget):
         ry = random.randint(cr.top(), cr.top() + max_y)
         self.rand_btn.move(rx, ry)
 
-        # 클릭 시 동작: pass (아무 것도 안 함)
+        # when clicking the button
         def on_clicked():
             pass
         self.rand_btn.clicked.connect(self.randomize_once)
@@ -62,7 +62,8 @@ class Demo(QtWidgets.QWidget):
         self.rand_btn.show()
 
     def move_cursor_randomly(self):
-        # 컨테이너 기준 랜덤 좌표 선택 → 전역 좌표로 변환
+        # conversion:
+        # choose random coordinates in container → global coordinates
         cr = self.container.contentsRect()
         if cr.width() <= 0 or cr.height() <= 0:
             return
