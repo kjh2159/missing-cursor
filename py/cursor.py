@@ -73,7 +73,8 @@ class Demo(QtWidgets.QWidget):
     def place_random_button(self):
         # re-create random button
         self.rand_btn = QtWidgets.QPushButton("Click Me!", self.container)
-        self.rand_btn.resize(self.rand_btn.sizeHint())
+        self.rand_btn.setFont(QtGui.QFont("Arial", 16, QtGui.QFont.Weight.Bold))
+        # self.rand_btn.resize(self.rand_btn.sizeHint())
 
         # calculate button size and container region
         br = self.rand_btn.frameGeometry()
