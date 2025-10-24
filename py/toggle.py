@@ -211,7 +211,7 @@ def get_toggler(opt, app):
         color = opt.get("COLOR", "#FFFFFF")
         size = int(opt.get("SIZE", 96))
         return CursorToggle(1, None, color=color, size=size, parent=app,
-                            shake_enabled=True,window_ms=120, dist_threshold_px=280, idle_ms=350)
+                            shake_enabled=True,window_ms=300, dist_threshold_px=3000, idle_ms=350)
 
     elif opt["TRIGGER"].lower() == "spacebar" and opt["SHAPE"].lower() == "corsshead":
         # default test case
