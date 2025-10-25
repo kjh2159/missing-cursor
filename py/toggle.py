@@ -200,16 +200,27 @@ class CursorToggle(QtCore.QObject):
 
 
 def get_toggler(opt, app):
+    # Red is a default color for highlight mode.
     if opt["TRIGGER"].lower() == "spacebar" and opt["ACTION"].lower() == "big-size":
         # case 1: hotkey + big-sized
-        # case 2: hotkey + colored
         color = opt.get("COLOR", "#FFFFFF")
         size = int(opt.get("SIZE", 96))
+        return CursorToggle(1, Qt.Key.Key_Space, color=color, size=size, parent=app)
+    elif opt["TRIGGER"].lower() == "shake" and opt["ACTION"].lower() == "highlight":
+        # case 2: hotkey + colored
+        color = opt.get("COLOR", "#FF0000")
+        size = int(opt.get("SIZE", 24))
         return CursorToggle(1, Qt.Key.Key_Space, color=color, size=size, parent=app)
     elif opt["TRIGGER"].lower() == "shake" and opt["ACTION"].lower() == "big-size":
         # case 3: shake + big-sized
         color = opt.get("COLOR", "#FFFFFF")
         size = int(opt.get("SIZE", 96))
+        return CursorToggle(1, None, color=color, size=size, parent=app,
+                            shake_enabled=True,window_ms=300, dist_threshold_px=3000, idle_ms=350)
+    elif opt["TRIGGER"].lower() == "shake" and opt["ACTION"].lower() == "big-size":
+        # case 4: shake + colored
+        color = opt.get("COLOR", "#FF0000")
+        size = int(opt.get("SIZE", 24))
         return CursorToggle(1, None, color=color, size=size, parent=app,
                             shake_enabled=True,window_ms=300, dist_threshold_px=3000, idle_ms=350)
 
