@@ -30,8 +30,8 @@ class Demo(QtWidgets.QWidget):
         )
         info.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        assets_dir = "./py/assets"
-        self.bg_path = "./py/assets/bg1.png" # test
+        assets_dir = "./py/assets/mid/"
+        self.bg_path = "./py/assets/mid/bg1.png" # test
         bg_files = []
         for p in glob.glob(os.path.join(assets_dir, "bg*.*")):
             if re.search(r"bg(\d+)\.(png|jpg|jpeg)$", os.path.basename(p), re.I):
@@ -142,7 +142,7 @@ class Demo(QtWidgets.QWidget):
 
     def randomize_background(self):
         idx = self.bg_order[self.round_no - 1]
-        self.bg_path = f"./py/assets/bg{idx}.png"
+        self.bg_path = f"./py/assets/mid/bg{idx}.png"
         self.container.setStyleSheet(f"""
             QWidget#bg {{
                 border-image: url('{self.bg_path}') 0 0 0 0 stretch stretch;
