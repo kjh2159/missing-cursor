@@ -65,6 +65,7 @@ class Demo(QtWidgets.QWidget):
     def randomize_once(self):
         if self.round_no >= self.total_rounds:
             Toast.show_toast(parent=self, text="All rounds finished!", duration_ms=1200, pos="top-center")
+            self.close()
             return
         
         self.round_no += 1
