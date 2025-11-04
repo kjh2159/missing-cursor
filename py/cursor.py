@@ -62,7 +62,8 @@ class Demo(QtWidgets.QWidget):
         self.total_rounds = len(self.bg_order)
         self.round_no = 0
 
-        measure.setup_measure(self.total_rounds, out_path="measure.txt")
+        # out_path=None -> auto path decision
+        measure.setup_measure(self.total_rounds, out_path=None)
 
         self.container = QtWidgets.QWidget(self)  # button region
         self.container.setObjectName("bg")

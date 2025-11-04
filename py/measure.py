@@ -10,7 +10,11 @@ _lock = threading.Lock()
 _t0_ns: Optional[int] = None          # round start time (ns)
 _round_no: int = 0
 _total_rounds: int = 0
-_out_path: LiteralString = os.path.join(OPTIONS["DIR"], OPTIONS["FILENAME"])
+_out_path: LiteralString = os.path.join(
+    OPTIONS["DIR"], 
+    OPTIONS["TRIGGER"] + "_" + OPTIONS["ACTION"] + "_" + OPTIONS["FILENAME"] + "_"
+        + time.strftime("%H:%M:%S", time.localtime())
+)
 _header_written: bool = False
 _clicks_in_round: int = 0
 
@@ -40,13 +44,13 @@ def _append_result(round_no: int, elapsed_ms: float, clicks: int) -> None:
 
 
 # ----------------- Public API -----------------
-def setup_measure(total_rounds: int, out_path: str = "measure.txt") -> None:
+def setup_measure(total_rounds: int, out_path: str | None = None) -> None:
     """Initialize session and (re)write CSV header."""
     global _round_no, _total_rounds, _out_path, _header_written, _t0_ns, _clicks_in_round, _seen_click_keys, _last_click_ns
     with _lock:
         _round_no = 0
         _total_rounds = int(total_rounds)
-        _out_path = Path(out_path)
+        _out_path = Path(out_path) if out_path is not None else Path(_out_path)
         _header_written = False
         _t0_ns = None
         _clicks_in_round = 0
