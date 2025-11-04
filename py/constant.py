@@ -9,4 +9,7 @@ OPTIONS = {
                             # Red is a default color for highlight mode.
     "SIZE": "96",           # size in pixels
                             # The original cursor size is 24.
+
+    "DIR": "./",
+    "FILENAME": "measure.txt"
 }

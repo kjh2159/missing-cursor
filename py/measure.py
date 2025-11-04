@@ -1,16 +1,16 @@
 from pathlib import Path
-import time
-import threading
-import re
-import glob
-from typing import List, Tuple, Optional, Any
+import time, threading, re, glob, os
+from typing import List, Tuple, Optional, Any, LiteralString
+
+# constants
+from constant import OPTIONS
 
 # --- Module-level state (thread-safe) ---
 _lock = threading.Lock()
 _t0_ns: Optional[int] = None          # round start time (ns)
 _round_no: int = 0
 _total_rounds: int = 0
-_out_path: Path = Path("measure.txt")
+_out_path: LiteralString = os.path.join(OPTIONS["DIR"], OPTIONS["FILENAME"])
 _header_written: bool = False
 _clicks_in_round: int = 0
 
