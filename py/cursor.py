@@ -8,6 +8,22 @@ from PyQt6.QtCore import Qt, QEvent
 from toast import Toast
 import measure
 
+class _ClickFilter(QtCore.QObject):
+    def __init__(self):
+        super().__init__()
+
+    def eventFilter(self, obj, ev):
+        if ev.type() != QEvent.Type.MouseButtonPress:
+            return False
+        if not isinstance(ev, QtGui.QMouseEvent):
+            return False
+        if ev.button() != Qt.MouseButton.LeftButton:
+            return False
+
+        # 핵심: 이벤트를 그대로 넘겨 → measure가 디듀프
+        measure.register_click(ev)
+        return False
+
 class Sleeper(QtCore.QObject):
     done = QtCore.pyqtSignal()
 
@@ -57,6 +73,11 @@ class Demo(QtWidgets.QWidget):
         lay.addWidget(self.container, stretch=1)
 
         self.rand_btn = None  # created button
+
+        # clicks 
+        # -> private variables
+        self._click_filter = _ClickFilter()
+        QtWidgets.QApplication.instance().installEventFilter(self._click_filter)
 
         # do single shot the randomization after show (after geometry is stablized)
         QtCore.QTimer.singleShot(0, self.randomize_once)
@@ -121,8 +142,10 @@ class Demo(QtWidgets.QWidget):
 
         # when clicking the button
         def on_clicked():
-            elapsed_ms = measure.end_round()
-            Toast.show_toast(parent=self, text=f"Round {self.round_no} : {elapsed_ms:.1f} ms", duration_ms=800, pos="top-center")
+            elapsed_ms, clicks = measure.end_round()
+            Toast.show_toast(parent=self,
+                     text=f"Round {self.round_no} : {elapsed_ms:.1f} ms, {clicks} clicks",
+                     duration_ms=900, pos="top-center")
             self.randomize_once()
 
         self.rand_btn.clicked.connect(on_clicked)
@@ -153,3 +176,14 @@ def cleanup_override_cursor():
     # clean-up stack
     while QtWidgets.QApplication.overrideCursor() is not None:
         QtWidgets.QApplication.restoreOverrideCursor()
+
+def install_click_filter_once():
+    app = QtWidgets.QApplication.instance()
+    if app is None:
+        return
+    if app.property("_click_filter_installed"):
+        return
+    f = _ClickFilter()
+    app.installEventFilter(f)
+    app._click_filter_ref = f                 # GC 방지
+    app.setProperty("_click_filter_installed", True)
