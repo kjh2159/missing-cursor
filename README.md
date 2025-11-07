@@ -27,6 +27,7 @@ pip install PyQt6
 
 ```shell
 python py/run.py
+# To use other settings, please refer to the constant.py
 ```
 
 ### B. Web
