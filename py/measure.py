@@ -12,7 +12,7 @@ _round_no: int = 0
 _total_rounds: int = 0
 _out_path: LiteralString = os.path.join(
     OPTIONS["DIR"], 
-    OPTIONS["TRIGGER"] + "_" + OPTIONS["ACTION"] + "_" + time.strftime("%H:%M:%S", time.localtime())
+    OPTIONS["TRIGGER"] + "_" + OPTIONS["ACTION"] + "_" + time.strftime("%H%M%S", time.localtime())
         + "_" + OPTIONS["FILENAME"]
 )
 _header_written: bool = False
