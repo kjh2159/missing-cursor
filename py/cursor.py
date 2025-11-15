@@ -20,7 +20,6 @@ class _ClickFilter(QtCore.QObject):
         if ev.button() != Qt.MouseButton.LeftButton:
             return False
 
-        # 핵심: 이벤트를 그대로 넘겨 → measure가 디듀프
         measure.register_click(ev)
         return False
 
@@ -46,29 +45,37 @@ class Demo(QtWidgets.QWidget):
         )
         info.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        assets_dir = "./py/assets/mid/"
-        self.bg_path = "./py/assets/mid/bg1.png" # test
-        bg_files = []
-        for p in glob.glob(os.path.join(assets_dir, "bg*.*")):
-            if re.search(r"bg(\d+)\.(png|jpg|jpeg)$", os.path.basename(p), re.I):
-                bg_files.append(p)
-        bg_indices = []
-        for p in bg_files:
-            m = re.search(r"bg(\d+)\.(png|jpg|jpeg)$", os.path.basename(p), re.I)
-            if m: bg_indices.append(int(m.group(1)))
-        bg_indices = sorted(set(bg_indices))
-        
-        self.bg_order = measure.build_unique_bg_order(bg_indices, shuffle_seed=None)
-        self.total_rounds = len(self.bg_order)
+        # ---------- low / mid / high directories----------
+        self.bg_levels = ("low", "mid")
+        pat = re.compile(r"bg(\d+)\.(png|jpg|jpeg)$", re.I)
+
+        all_by_level: dict[str, list[str]] = {lvl: [] for lvl in self.bg_levels}
+        base_root = Path("./py/assets")
+
+        for lvl in self.bg_levels:
+            dir_path = base_root / lvl
+            if not dir_path.exists():
+                continue
+            for p in dir_path.glob("bg*.*"):
+                if pat.search(p.name):
+                    all_by_level[lvl].append(str(p))
+
+        self.bg_paths = self._build_mixed_bg_sequence(all_by_level)
+
+        if not self.bg_paths:
+            self.bg_paths = ["./py/assets/mid/bg1.png"]
+
+        self.total_rounds = len(self.bg_paths)
         self.round_no = 0
+        self.bg_path = self.bg_paths[0]
 
         # out_path=None -> auto path decision
         measure.setup_measure(self.total_rounds, out_path=None)
+        # ---------------------------------------------------------------
 
         self.container = QtWidgets.QWidget(self)  # button region
         self.container.setObjectName("bg")
-        self.container.setStyleSheet(f"") # the background would be change like this form
-        
+        self.container.setStyleSheet("")
         lay = QtWidgets.QVBoxLayout(self)
         lay.addWidget(info)
         lay.addWidget(self.container, stretch=1)
@@ -76,12 +83,36 @@ class Demo(QtWidgets.QWidget):
         self.rand_btn = None  # created button
 
         # clicks 
-        # -> private variables
         self._click_filter = _ClickFilter()
         QtWidgets.QApplication.instance().installEventFilter(self._click_filter)
 
         # do single shot the randomization after show (after geometry is stablized)
         QtCore.QTimer.singleShot(0, self.randomize_once)
+
+    def _build_mixed_bg_sequence(self, all_by_level: dict[str, list[str]]) -> list[str]:
+        pools: dict[str, list[str]] = {lvl: paths[:] for lvl, paths in all_by_level.items() if paths}
+        seq: list[str] = []
+        last_level: str | None = None
+        rng = random.Random()
+
+        while True:
+            non_empty = [lvl for lvl, paths in pools.items() if paths]
+            if not non_empty:
+                break
+
+            candidates = [lvl for lvl in non_empty if lvl != last_level]
+            if not candidates:
+                candidates = non_empty
+
+            lvl = rng.choice(candidates)
+            paths = pools[lvl]
+            idx = rng.randrange(len(paths))
+            path = paths.pop(idx)
+
+            seq.append(path)
+            last_level = lvl
+
+        return seq
 
     # single shot
     def randomize_once(self):
@@ -165,11 +196,14 @@ class Demo(QtWidgets.QWidget):
         QtGui.QCursor.setPos(global_pt)
 
     def randomize_background(self):
-        idx = self.bg_order[self.round_no - 1]
-        self.bg_path = f"./py/assets/mid/bg{idx}.png"
+        if not self.bg_paths:
+            return
+        idx = min(self.round_no - 1, len(self.bg_paths) - 1)
+        self.bg_path = self.bg_paths[idx]
+        style_path = self.bg_path.replace("\\", "/")
         self.container.setStyleSheet(f"""
             QWidget#bg {{
-                border-image: url('{self.bg_path}') 0 0 0 0 stretch stretch;
+                border-image: url('{style_path}') 0 0 0 0 stretch stretch;
             }}
         """)
 
