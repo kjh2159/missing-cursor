@@ -220,5 +220,5 @@ def install_click_filter_once():
         return
     f = _ClickFilter()
     app.installEventFilter(f)
-    app._click_filter_ref = f                 # GC 방지
+    app._click_filter_ref = f                 # GC protection
     app.setProperty("_click_filter_installed", True)

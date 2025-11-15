@@ -18,7 +18,7 @@ _out_path: LiteralString = os.path.join(
 _header_written: bool = False
 _clicks_in_round: int = 0
 
-# NEW: robust de-duplication for multiple press notifications
+# robust de-duplication for multiple press notifications
 _seen_click_keys: set = set()
 _last_click_ns: Optional[int] = None   # fallback dedup when no event timestamp
 

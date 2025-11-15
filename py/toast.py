@@ -69,7 +69,8 @@ class Toast(QtWidgets.QWidget):
             return
         pr = self.frameGeometry()
         gr = parent.geometry() if parent.isWindow() else parent.window().geometry()
-        # 기본: 오른쪽-아래
+        
+        # default: right bottom
         x = gr.right() - pr.width() - self._margin
         y = gr.bottom() - pr.height() - self._margin
         if pos == "bottom-left":
