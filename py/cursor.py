@@ -174,7 +174,7 @@ class Demo(QtWidgets.QWidget):
 
         # when clicking the button
         def on_clicked():
-            elapsed_ms, clicks = measure.end_round()
+            elapsed_ms, clicks = measure.end_round(self.bg_paths)
             Toast.show_toast(parent=self,
                      text=f"Round {self.round_no} : {elapsed_ms:.1f} ms, {clicks} clicks",
                      duration_ms=900, pos="top-center")

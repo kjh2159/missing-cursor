@@ -27,7 +27,7 @@ _last_click_ns: Optional[int] = None   # fallback dedup when no event timestamp
 def _write_header() -> None:
     _out_path.parent.mkdir(parents=True, exist_ok=True)
     with _out_path.open("w", encoding="utf-8") as f:
-        f.write("round,time(ms),clicks\n")
+        f.write("round,time(ms),clicks,path\n")
 
 
 def _write_header_if_needed() -> None:
@@ -37,10 +37,10 @@ def _write_header_if_needed() -> None:
         _header_written = True
 
 
-def _append_result(round_no: int, elapsed_ms: float, clicks: int) -> None:
+def _append_result(round_no: int, elapsed_ms: float, clicks: int, path: str) -> None:
     _write_header_if_needed()
     with _out_path.open("a", encoding="utf-8") as f:
-        f.write(f"{round_no},{elapsed_ms:.3f},{clicks}\n")
+        f.write(f"{round_no},{elapsed_ms:.3f},{clicks},{path}\n")
 
 
 # ----------------- Public API -----------------
@@ -121,7 +121,7 @@ def start_round(round_no: int) -> None:
         _t0_ns = time.perf_counter_ns()
 
 
-def end_round() -> Tuple[float, int]:
+def end_round(round_info) -> Tuple[float, int]:
     """Call right when the user successfully clicks the button.
     Returns (elapsed_ms, clicks) and appends to CSV."""
     global _t0_ns, _round_no, _clicks_in_round, _seen_click_keys, _last_click_ns
@@ -132,7 +132,7 @@ def end_round() -> Tuple[float, int]:
             elapsed_ns = time.perf_counter_ns() - _t0_ns
             elapsed_ms = elapsed_ns / 1e6
         clicks = _clicks_in_round
-        _append_result(_round_no, elapsed_ms, clicks)
+        _append_result(_round_no, elapsed_ms, clicks, round_info[_round_no-1])
         # reset for next round
         _t0_ns = None
         _clicks_in_round = 0
