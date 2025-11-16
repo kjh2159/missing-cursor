@@ -36,7 +36,7 @@ class Demo(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Missing Cursor Demo")
-        self.setMinimumSize(500, 350)
+        self.setMinimumSize(1920, 1080)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
         info = QtWidgets.QLabel(
