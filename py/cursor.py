@@ -46,7 +46,7 @@ class Demo(QtWidgets.QWidget):
         info.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # ---------- low / mid / high directories----------
-        self.bg_levels = ("low", "mid")
+        self.bg_levels = ("low", "mid", "high")
         pat = re.compile(r"bg(\d+)\.(png|jpg|jpeg)$", re.I)
 
         all_by_level: dict[str, list[str]] = {lvl: [] for lvl in self.bg_levels}
@@ -183,16 +183,55 @@ class Demo(QtWidgets.QWidget):
         self.rand_btn.clicked.connect(on_clicked)
         self.rand_btn.show()
 
-    def move_cursor_randomly(self):
+    def move_cursor_randomly(self, min_dist_px: int = 150):
         # conversion:
         # choose random coordinates in container → global coordinates
         cr = self.container.contentsRect()
         if cr.width() <= 0 or cr.height() <= 0:
             return
-        rx = random.randint(cr.left(), cr.right())
-        ry = random.randint(cr.top(), cr.bottom())
-        local_pt = QtCore.QPoint(rx, ry)
-        global_pt = self.container.mapToGlobal(local_pt)
+        
+        # center of button
+        btn_center = None
+        if self.rand_btn is not None and self.rand_btn.isVisible():
+            # container position
+            g = self.rand_btn.geometry()
+            btn_center = g.center()
+        
+        rng = random.Random()
+        min_dist_sq = float(min_dist_px) ** 2
+
+        best_pt = None
+        best_d2 = -1.0
+
+        # too small region -> limit the number of trials
+        for _ in range(50): # number of trials
+            rx = random.randint(cr.left(), cr.right())
+            ry = random.randint(cr.top(), cr.bottom())
+            cand = QtCore.QPoint(rx, ry)
+
+            if btn_center is not None:
+                dx = cand.x() - btn_center.x()
+                dy = cand.y() - btn_center.y()
+                d2 = dx**2 + dy**2
+
+                if d2 < min_dist_sq:
+                    continue
+
+                if d2 > best_d2:
+                    best_d2 = d2
+                    best_pt = cand
+                    continue
+
+            
+            # condition is satisfied
+            best_pt = cand
+            break
+
+        # there's no best, then use the farest one.
+        if best_pt is None:
+            return
+        
+        global_pt = self.container.mapToGlobal(best_pt)
         QtGui.QCursor.setPos(global_pt)
 
     def randomize_background(self):
