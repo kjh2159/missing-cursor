@@ -160,6 +160,20 @@ class Demo(QtWidgets.QWidget):
         # re-create random button
         self.rand_btn = QtWidgets.QPushButton("Click Me!", self.container)
         self.rand_btn.setFont(QtGui.QFont("Arial", 16, QtGui.QFont.Weight.Bold))
+        self.rand_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #2ecc71;   
+                color: white;               
+                border-radius: 8px;         
+                padding: 6px 12px;          
+            }
+            QPushButton:hover {
+                background-color: #27ae60;  
+            }
+            QPushButton:pressed {
+                background-color: #1e8449;  
+            }
+        """)
         # self.rand_btn.resize(self.rand_btn.sizeHint())
 
         # calculate button size and container region
