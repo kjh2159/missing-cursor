@@ -12,7 +12,7 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication([])
     app.setQuitOnLastWindowClosed(True)
 
-    w = Demo(); w.show()
+    w = Demo(); w.showMaximized()
     w.setMouseTracking(True) 
 
     # global filter, which is attched to the parent process as a child
