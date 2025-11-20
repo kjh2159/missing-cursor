@@ -46,7 +46,7 @@ class Demo(QtWidgets.QWidget):
         info.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         # ---------- low / mid / high directories----------
-        self.bg_levels = ("low", "mid", "high")
+        self.bg_levels = ("office", "game", "stock")
         pat = re.compile(r"bg(\d+)\.(png|jpg|jpeg)$", re.I)
 
         all_by_level: dict[str, list[str]] = {lvl: [] for lvl in self.bg_levels}
