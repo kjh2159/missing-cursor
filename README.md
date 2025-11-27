@@ -30,6 +30,8 @@ python py/run.py
 # To use other settings, please refer to the constant.py
 ```
 
+Also, you can change the cursor and triggering type by modifying the file: `constant.py`.
+
 ### B. Web
 ```shell
 # Windows
